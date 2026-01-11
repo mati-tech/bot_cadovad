@@ -1,0 +1,8 @@
+{
+    "welcome": "Welcome! Enter your name:",
+    "main_menu": "Main Menu",
+    "add_product": "Add New Product",
+    "enter_quantity": "Enter quantity:",
+    "product_added": "Product added ✔",
+    "sold_prompt": "Enter buyer name:"
+}

@@ -1,0 +1,16 @@
+# Telegram bot
+aiogram==3.4.1
+
+# Async PostgreSQL
+psycopg2-binary
+SQLAlchemy==2.0.25
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Optional: for admin panel (FastAPI)
+fastapi==0.111.1
+uvicorn[standard]==0.23.2
+
+# Utilities (optional but useful)
+python-dateutil==2.8.2
