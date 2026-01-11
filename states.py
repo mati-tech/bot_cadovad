@@ -6,6 +6,7 @@ class RegisterState(StatesGroup):
     shop = State()
 
 class ProductState(StatesGroup):
+    waiting_for_shop_selection = State()
     name = State()
     quantity = State()
     price = State()

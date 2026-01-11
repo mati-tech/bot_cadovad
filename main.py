@@ -2,7 +2,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from config import BOT_TOKEN
 from database import init_db
-from handlers import start, products, sales, debts, reports
+from handlers import start, products, sales, debts, reports, settings
 
 async def main():
     print("🔹 Initializing database...")
@@ -21,6 +21,8 @@ async def main():
     dp.include_router(sales.router)
     dp.include_router(debts.router)
     dp.include_router(reports.router)
+    dp.include_router(settings.router)
+    
     print("✅ Handlers registered.")
 
     # Start polling

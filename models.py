@@ -37,6 +37,7 @@ class User(Base):
     location = Column(String)  # optional
     language = Column(String, default="en")
     created_at = Column(DateTime, server_default=func.now())
+    # payments = relationship("Payment", back_populates="user")
 
     
 
@@ -70,3 +71,20 @@ class Debt(Base):
     total_amount = Column(Float)
     paid_amount = Column(Float, default=0)
     is_settled = Column(Boolean, default=False)
+    created_at = Column(DateTime, server_default=func.now())
+
+class Payment(Base):
+    __tablename__ = "payments"
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    amount = Column(Float)
+    plan_type = Column(String)  # "1 Month", "3 Months", etc.
+    status = Column(String)  # "pending", "completed", "failed"
+    payment_method = Column(String, nullable=True)  # "stripe", "paypal", "manual"
+    transaction_id = Column(String, nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+    expires_at = Column(DateTime)
+    
+    # Relationship
+    # user = relationship("User", back_populates="payments")
