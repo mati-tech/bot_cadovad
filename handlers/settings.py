@@ -29,7 +29,7 @@ async def settings_menu(message: Message):
     )
     
     await message.answer(
-        "⚙️ **Settings Menu**\n"
+        "⚙️ Settings Menu\n"
         "Select an option:",
         reply_markup=keyboard
     )
@@ -49,7 +49,7 @@ async def show_profile(callback: CallbackQuery):
         shops = session.query(Shop).filter_by(owner_id=user.id).all()
         
         profile_text = (
-            f"👤 **Your Profile**\n"
+            f"👤 Your Profile\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"📛 Name: {user.name or 'Not set'}\n"
             f"🆔 Telegram ID: {user.telegram_id}\n"
@@ -59,7 +59,7 @@ async def show_profile(callback: CallbackQuery):
         )
         
         if shops:
-            profile_text += f"🏪 **Your Shops ({len(shops)}):**\n"
+            profile_text += f"🏪 Your Shops ({len(shops)}):\n"
             for shop in shops:
                 # Get shop statistics
                 from models import Product, Sale
@@ -115,7 +115,7 @@ async def language_settings(callback: CallbackQuery):
     )
     
     await callback.message.answer(
-        "🌐 **Select Language**\n"
+        "🌐 Select Language\n"
         "Choose your preferred language:",
         reply_markup=keyboard
     )
@@ -170,7 +170,7 @@ async def payment_status(callback: CallbackQuery):
             # Active subscription
             days_left = (payment.expires_at - datetime.now()).days
             status_text = (
-                f"💳 **Payment Status: ACTIVE** ✅\n"
+                f"💳 Payment Status: ACTIVE ✅\n"
                 f"━━━━━━━━━━━━━━━━━━\n"
                 f"📦 Plan: {payment.plan_type}\n"
                 f"💰 Amount: ${payment.amount:.2f}\n"
@@ -182,7 +182,7 @@ async def payment_status(callback: CallbackQuery):
         else:
             # No active subscription
             status_text = (
-                f"💳 **Payment Status: INACTIVE** ❌\n"
+                f"💳 Payment Status: INACTIVE ❌\n"
                 f"━━━━━━━━━━━━━━━━━━\n"
                 f"⚠️ Your subscription has expired or you haven't subscribed yet.\n"
                 f"Please choose a subscription plan to continue using all features."
@@ -228,7 +228,7 @@ async def select_plan(callback: CallbackQuery):
         f"━━━━━━━━━━━━━━━━━━\n"
         f"💵 Price: ${plan_data['price']:.2f}\n"
         f"📅 Duration: {plan_data['days']} days\n\n"
-        f"⚠️ **Payment Integration Required**\n"
+        f"⚠️ Payment Integration Required\n"
         f"This is a demo. In a real app, this would redirect to:\n"
         f"• Stripe / PayPal payment\n"
         f"• Bank transfer details\n"
@@ -278,7 +278,7 @@ async def simulate_payment(callback: CallbackQuery):
             session.commit()
             
             await callback.message.answer(
-                f"✅ **Payment Successful!**\n"
+                f"✅ Payment Successful!\n"
                 f"━━━━━━━━━━━━━━━━━━\n"
                 f"📦 Plan: {plan_data['name']}\n"
                 f"💰 Amount: ${plan_data['price']:.2f}\n"
@@ -303,7 +303,7 @@ async def support_menu(callback: CallbackQuery, state: FSMContext):
     )
     
     await callback.message.answer(
-        "📱 **Support Center**\n"
+        "📱 Support Center\n"
         "How can we help you?",
         reply_markup=keyboard
     )
@@ -313,7 +313,7 @@ async def support_menu(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == "support_message")
 async def start_support_message(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(
-        "📝 **Send Message to Admin**\n"
+        "📝 Send Message to Admin\n"
         "Please type your message (questions, feedback, issues):\n\n"
         "Type /cancel to cancel."
     )
@@ -339,7 +339,7 @@ async def send_support_message(message: Message, state: FSMContext):
     
     # Simulate sending to admin (replace with actual admin notification)
     admin_notification = (
-        f"🆘 **New Support Message**\n"
+        f"🆘 New Support Message\n"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"👤 From: {user_name} (ID: {message.from_user.id})\n"
         f"📅 Time: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n"
@@ -349,13 +349,13 @@ async def send_support_message(message: Message, state: FSMContext):
     
     # For demo, show what would be sent
     await message.answer(
-        f"✅ **Message Sent to Admin!**\n"
+        f"✅ Message Sent to Admin!\n"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"Your message has been forwarded to the admin team.\n"
         f"We'll respond within 24 hours.\n\n"
-        f"📧 **Your message:**\n"
+        f"📧 Your message:\n"
         f"{message.text}\n\n"
-        f"📧 **Admin would receive:**\n"
+        f"📧 Admin would receive:\n"
         f"{admin_notification[:500]}..."
     )
     
@@ -365,19 +365,17 @@ async def send_support_message(message: Message, state: FSMContext):
 @router.callback_query(F.data == "support_contact")
 async def contact_info(callback: CallbackQuery):
     contact_text = (
-        "📞 **Contact Information**\n"
+        "📞 Contact Information\n"
         "━━━━━━━━━━━━━━━━━━\n"
-        "👨‍💼 **Admin:** @admin_username\n"
-        "📧 **Email:** admin@example.com\n"
-        "🌐 **Website:** https://example.com\n"
-        "📱 **Phone:** +1 (234) 567-8900\n\n"
-        "⏰ **Support Hours:**\n"
+        "👨‍💼 Admin: @admin_username\n"
+        "📧 Email: admin@example.com\n"
+        "🌐 Website: https://example.com\n"
+        "📱 Phone: +1 (234) 567-8900\n\n"
+        "⏰ Support Hours:\n"
         "Monday - Friday: 9:00 - 18:00\n"
         "Saturday: 10:00 - 14:00\n"
         "Sunday: Closed\n\n"
-        "📍 **Office Address:**\n"
-        "123 Business Street\n"
-        "City, Country 12345"
+        
     )
     
     await callback.message.answer(contact_text)
@@ -387,21 +385,21 @@ async def contact_info(callback: CallbackQuery):
 @router.callback_query(F.data == "support_faq")
 async def faq_section(callback: CallbackQuery):
     faq_text = (
-        "❓ **Frequently Asked Questions**\n"
+        "❓ Frequently Asked Questions\n"
         "━━━━━━━━━━━━━━━━━━\n"
-        "**Q: How do I add a product?**\n"
+        "Q: How do I add a product?\n"
         "A: Go to Products → Add New Product\n\n"
-        "**Q: How do I mark a sale?**\n"
+        "Q: How do I mark a sale?\n"
         "A: Click on a product and select 'Mark as Sold'\n\n"
-        "**Q: Can I use the bot for free?**\n"
+        "Q: Can I use the bot for free?\n"
         "A: Yes, basic features are free. Premium features require subscription.\n\n"
-        "**Q: How do I change language?**\n"
+        "Q: How do I change language?\n"
         "A: Settings → Language → Select your language\n\n"
-        "**Q: How to contact support?**\n"
+        "Q: How to contact support?\n"
         "A: Settings → Support → Send Message to Admin\n\n"
-        "**Q: How to check my payment status?**\n"
+        "Q: How to check my payment status?\n"
         "A: Settings → Payment Status\n\n"
-        "**Q: Can I have multiple shops?**\n"
+        "Q: Can I have multiple shops?\n"
         "A: Yes, run /start again to create additional shops."
     )
     
@@ -419,17 +417,17 @@ async def about_section(callback: CallbackQuery):
         sale_count = session.query(Sale).count()
     
     about_text = (
-        "ℹ️ **About QuickSell Bot**\n"
+        "ℹ️ About QuickSell Bot\n"
         "━━━━━━━━━━━━━━━━━━\n"
-        "🚀 **Version:** 2.0.0\n"
-        "📅 **Released:** 2024\n"
-        "👨‍💻 **Developer:** QuickSell Team\n\n"
-        "📊 **Bot Statistics:**\n"
+        "🚀 Version: 2.0.0\n"
+        "📅 Released: 2024\n"
+        "👨‍💻 Developer: QuickSell Team\n\n"
+        "📊 Bot Statistics:\n"
         f"👥 Users: {user_count}\n"
         f"🏪 Shops: {shop_count}\n"
         f"📦 Products: {product_count}\n"
         f"💰 Sales: {sale_count}\n\n"
-        "✨ **Features:**\n"
+        "✨ Features:\n"
         "• Product management\n"
         "• Sales tracking\n"
         "• Debt management\n"
@@ -460,12 +458,12 @@ async def back_to_settings(callback: CallbackQuery):
 @router.callback_query(F.data == "contact_admin")
 async def contact_admin_from_payment(callback: CallbackQuery):
     await callback.message.answer(
-        "👨‍💼 **Contact Admin for Payment**\n"
+        "👨‍💼 Contact Admin for Payment\n"
         "━━━━━━━━━━━━━━━━━━\n"
         "For payment issues or manual payment:\n\n"
-        "📱 **Telegram:** @admin_username\n"
-        "📧 **Email:** payments@example.com\n"
-        "💬 **WhatsApp:** +1 (234) 567-8900\n\n"
+        "📱 Telegram: @admin_username\n"
+        "📧 Email: payments@example.com\n"
+        "💬 WhatsApp: +1 (234) 567-8900\n\n"
         "Please provide your User ID:\n"
         f"`{callback.from_user.id}`"
     )

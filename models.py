@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Column, Integer, String, Float, Boolean, ForeignKey, DateTime
+    Column, Integer, String, Float, Boolean, ForeignKey, DateTime, BigInteger
 )
 from sqlalchemy.sql import func
 from database import Base
@@ -32,7 +32,8 @@ class Shop(Base):
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    telegram_id = Column(Integer, unique=True)
+    # telegram_id = Column(Integer, unique=True)
+    telegram_id = Column(BigInteger, unique=True, index=True)
     name = Column(String)
     location = Column(String)  # optional
     language = Column(String, default="en")
