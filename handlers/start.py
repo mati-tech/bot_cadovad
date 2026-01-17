@@ -1,9 +1,14 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, Message, ReplyKeyboardRemove
-from sqlalchemy.orm import Session
+from aiogram.types import (
+    Message, 
+    ReplyKeyboardRemove, 
+    InlineKeyboardMarkup, 
+    InlineKeyboardButton, 
+    CallbackQuery
+)
 from database import SessionLocal
 from models import User, Shop
 from keyboards import main_menu
@@ -19,36 +24,53 @@ class StartStates(StatesGroup):
 # Шаг 1: команда /start
 @router.message(Command("start"))
 async def start_handler(message: Message, state: FSMContext):
-    # Очищаем состояние на случай, если пользователь застрял в середине регистрации
     await state.clear()
-    
     db = SessionLocal()
     try:
+        # Ищем пользователя по telegram_id
         user = db.query(User).filter_by(telegram_id=message.from_user.id).first()
+        shop = db.query(Shop).filter_by(owner_id=user.id).first() if user else None
+
+        # Если пользователь уже зарегистрирован и имеет магазин
+        if user and user.name and shop:
+            info_text = (
+                "📋 **Ваш профиль:**\n"
+                f"👤 Имя: {user.name}\n"
+                f"📍 Расположение: {user.location}\n"
+                f"🏪 Магазин №: {shop.shop_number}\n"
+                "━━━━━━━━━━━━━━━━━━━━\n"
+                "Вы можете управлять товарами через меню ниже или изменить данные профиля."
+            )
+            
+            edit_kb = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="⚙️ Редактировать профиль", callback_data="edit_profile")]
+            ])
+            
+            # Показываем основное меню и карточку с кнопкой редактирования
+            await message.answer(info_text, reply_markup=main_menu, parse_mode="Markdown")
+            await message.answer("Хотите изменить данные?", reply_markup=edit_kb)
+            return
+
+        # Если новый пользователь или профиль не завершен
+        await message.answer(
+            "👋 Добро пожаловать! Вы еще не зарегистрированы.\n"
+            "Пожалуйста, введите ваше полное имя:", 
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.set_state(StartStates.waiting_for_name)
         
-        if not user:
-            user = User(telegram_id=message.from_user.id, language="ru")
-            db.add(user)
-            db.commit()
-            db.refresh(user)
-        
-        await state.update_data(user_id=user.id)
-        
-    except Exception as e:
-        print(f"Ошибка базы данных в /start: {e}")
-        db.rollback()
     finally:
         db.close()
-    
-    # ИСПРАВЛЕНО: Убран reply_markup=main_menu, добавлен ReplyKeyboardRemove()
-    # Это скрывает кнопки меню до завершения регистрации
-    await message.answer(
-        "👋 Добро пожаловать в бот управления магазином!\n\n"
-        "Для начала работы необходимо пройти регистрацию.\n"
-        "Пожалуйста, введите ваше полное имя:", 
+
+# Обработчик кнопки "Редактировать"
+@router.callback_query(F.data == "edit_profile")
+async def edit_profile_handler(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer(
+        "🔄 Начнем обновление данных.\nВведите ваше полное имя:", 
         reply_markup=ReplyKeyboardRemove()
     )
     await state.set_state(StartStates.waiting_for_name)
+    await callback.answer()
 
 # Шаг 2: Получаем имя пользователя
 @router.message(StartStates.waiting_for_name)
@@ -88,40 +110,44 @@ async def get_shop_number(message: Message, state: FSMContext):
         return
     
     data = await state.get_data()
-    user_id = data.get("user_id")
     name = data.get("name")
     line = data.get("line")
     
     db = SessionLocal()
     try:
-        user = db.query(User).filter_by(id=user_id).first()
-        if user:
-            user.name = name
-            user.location = line
-            db.commit()
-
-            existing_shop = db.query(Shop).filter_by(owner_id=user.id).first()
-            if existing_shop:
-                existing_shop.shop_number = shop_number
-                existing_shop.location = line
-            else:
-                new_shop = Shop(shop_number=shop_number, location=line, owner_id=user.id)
-                db.add(new_shop)
-            
-            db.commit()
+        # Ищем пользователя по telegram_id (более надежно, чем по id из стейта)
+        user = db.query(User).filter_by(telegram_id=message.from_user.id).first()
         
-        # ТОЛЬКО ТУТ мы отправляем main_menu
+        if not user:
+            user = User(telegram_id=message.from_user.id, language="ru")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+
+        user.name = name
+        user.location = line
+        db.commit()
+
+        existing_shop = db.query(Shop).filter_by(owner_id=user.id).first()
+        if existing_shop:
+            existing_shop.shop_number = shop_number
+            existing_shop.location = line
+        else:
+            new_shop = Shop(shop_number=shop_number, location=line, owner_id=user.id)
+            db.add(new_shop)
+        
+        db.commit()
+        
         await message.answer(
-            f"✅ Регистрация завершена!\n\n"
+            f"✅ Данные успешно сохранены!\n\n"
             f"👤 Имя: {name}\n"
             f"🏪 Магазин №{shop_number}\n"
-            f"📍 Расположение: {line}\n\n"
-            f"Теперь вы можете использовать все функции бота.",
+            f"📍 Расположение: {line}",
             reply_markup=main_menu
         )
         
     except Exception as e:
-        print(f"Ошибка: {e}")
+        print(f"Ошибка БД: {e}")
         db.rollback()
         await message.answer("❌ Ошибка при сохранении данных.")
     finally:
